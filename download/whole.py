@@ -2,7 +2,7 @@
 
 import requests
 import sys,threading
-from faker import Factory
+import os
 from bs4 import BeautifulSoup
 sys.path.append("..")
 from search.contents import *
@@ -37,6 +37,18 @@ def Thread():
         result[idn]=con
         print("[{}] 完成第 {} 章,{} 线程正在运行\n".format(threading.current_thread().name,idn+1,runningThread))
 
+def BookName(url):
+    headers={
+        "User-Agent":"Mozilla/5.0 (iPod; U; CPU iPhone OS 3_3 like Mac OS X; os-RU) AppleWebKit/531.18.3 (KHTML, like Gecko) Version/4.0.5 Mobile/8B115 Safari/6531.18.3",
+        "Host":"www.xbiquge.la"
+    }
+    try:
+        response=requests.get(url=url,headers=headers,timeout=5)
+    except:
+        return "Failure"
+    soup=BeautifulSoup(response.content,"html.parser")
+    return soup.find_all("meta",property="og:title")[0]["content"]
+
 def DownloadWhole(url):
     global threads
     global runningThread
@@ -58,9 +70,9 @@ def DownloadWhole(url):
     for i in range(0,len(contents)):
         available.append(True)
         result.append("")
-    threadCount=128
+    threadCount=256
     runningThread=0
-    # WARNING: Don't set the value to a too high value!!!
+    # WARNING: Don't set the value to over 32!!!
     for i in range(0,threadCount):
         threads.append(threading.Thread(target=Thread,name="Thread"+str(i+1)))
         threads[i].start()
@@ -74,4 +86,7 @@ def DownloadWhole(url):
         result2+="\n\n"
         result2+=result[i]
         result2+="\n\n"
-    return result2
+    result3=[]
+    result3.append(result2)
+    result3.append(BookName(url))
+    return result3

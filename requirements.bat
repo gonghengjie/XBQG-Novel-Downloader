@@ -1,4 +1,4 @@
-pip install beautifulsoup4
-pip install confparser
 pip install requests
+pip install beautifulsoup4
 pip install faker
+pip install confparser
